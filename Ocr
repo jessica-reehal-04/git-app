@@ -1,0 +1,43 @@
+from flask import Flask, request, jsonify
+import os
+
+app = Flask(__name__)
+
+# Define a global list to store the attributes
+global_list = []
+
+@app.route('/upload', methods=['POST'])
+def upload_image():
+    data = request.json
+    if not data:
+        return 'No data received', 400
+    
+    template_name = data.get('templateName')
+    description = data.get('Description')
+    image_file = request.files.get('Image')
+    
+    if not all([template_name, description, image_file]):
+        return 'Missing data in the request', 400
+    
+    # Save the image to a specific directory
+    if not os.path.exists('uploaded_images'):
+        os.makedirs('uploaded_images')
+    
+    image_path = os.path.join('uploaded_images', image_file.filename)
+    image_file.save(image_path)
+    
+    # Append the attributes to the global list
+    global_list.append({
+        'templateName': template_name,
+        'Description': description,
+        'Image': image_path
+    })
+    
+    return 'Image uploaded and attributes stored successfully', 200
+
+@app.route('/get_global_list', methods=['GET'])
+def get_global_list():
+    return jsonify(global_list)
+
+if __name__ == '__main__':
+    app.run(debug=True)
