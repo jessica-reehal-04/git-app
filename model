@@ -1,0 +1,1 @@
+ dictionary[field_name]=re.sub(r'\n.*','',pytesseract.image_to_string(image.crop((x1, y1, x2, y2))))
